@@ -1,5 +1,14 @@
 import os
 import streamlit as st
+
+# ✅ 무조건 첫 Streamlit 명령어
+st.set_page_config(
+    page_title="🤖 KAIST 규정 챗봇",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 import sys
 import time
 import shutil
@@ -12,10 +21,8 @@ import urllib3
 import json
 import re
 from dotenv import load_dotenv
-
 # .env 파일 로드
 load_dotenv()
-
 # 디버그 모드 활성화
 DEBUG_MODE = False
 
@@ -49,7 +56,7 @@ os.makedirs(CHROMA_DIR, exist_ok=True)
 # API 키 설정
 openai.api_key = os.environ.get("OPENAI_API_KEY", "")
 openai.api_base = os.environ.get("OPENAI_API_BASE") or "https://api.openai.com/v1"
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-")
 
 # 페이지 설정
 st.set_page_config(page_title="🤖 KAIST 규정 챗봇", layout="wide", initial_sidebar_state="expanded")
