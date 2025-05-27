@@ -56,10 +56,7 @@ os.makedirs(CHROMA_DIR, exist_ok=True)
 # API 키 설정
 openai.api_key = os.environ.get("OPENAI_API_KEY", "")
 openai.api_base = os.environ.get("OPENAI_API_BASE") or "https://api.openai.com/v1"
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-")
-
-# 페이지 설정
-st.set_page_config(page_title="🤖 KAIST 규정 챗봇", layout="wide", initial_sidebar_state="expanded")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
 
 # CSS - 최상단에 배치하여 먼저 적용되도록 함
 st.markdown("""
