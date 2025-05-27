@@ -53,10 +53,17 @@ CHROMA_DIR = os.path.join(os.path.dirname(__file__), 'chroma_db')
 os.makedirs(HWP_DIR, exist_ok=True)
 os.makedirs(CHROMA_DIR, exist_ok=True)
 
-# API 키 설정
-openai.api_key = os.environ.get("OPENAI_API_KEY", "")
-openai.api_base = os.environ.get("OPENAI_API_BASE") or "https://api.openai.com/v1"
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
+# API 키 설정 - 환경변수와 Streamlit secrets 모두 지원
+openai.api_key = os.environ.get("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
+openai.api_base = os.environ.get("OPENAI_API_BASE") or st.secrets.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL") or st.secrets.get("OPENAI_MODEL", "gpt-4.1-mini")
+OPENAI_EMBEDDING_MODEL = os.environ.get("OPENAI_EMBEDDING_MODEL") or st.secrets.get("OPENAI_EMBEDDING_MODEL", "text-embedding-ada-002")
+
+# API 키 확인
+if not openai.api_key:
+    st.error("⚠️ OpenAI API 키가 설정되지 않았습니다!")
+    st.info("Streamlit Cloud의 Settings > Secrets에서 OPENAI_API_KEY를 설정하거나, 로컬에서는 .env 파일을 생성하세요.")
+    st.stop()
 
 # CSS - 최상단에 배치하여 먼저 적용되도록 함
 st.markdown("""
@@ -901,10 +908,10 @@ try:
             embeddings = OpenAIEmbeddings(
                 openai_api_key=openai.api_key,
                 openai_api_base=openai.api_base,
-                model=os.environ.get("OPENAI_EMBEDDING_MODEL", "azure.text-embedding-3-large")
+                model=OPENAI_EMBEDDING_MODEL
             )
             # 메타데이터에 임베딩 정보 추가
-            embedding_info_str = json.dumps({"type": "openai", "provider": "standard", "model": "text-embedding-ada-002"})
+            embedding_info_str = json.dumps({"type": "openai", "provider": "standard", "model": OPENAI_EMBEDDING_MODEL})
             metadata = {"embedding_info": embedding_info_str}
             # 벡터DB 생성
             db = Chroma.from_documents(
@@ -916,7 +923,7 @@ try:
             db.persist()
             # 메타데이터 파일로 저장
             with open(os.path.join(CHROMA_DIR, "embedding_info.json"), "w") as f:
-                json.dump({"type": "openai", "provider": "standard", "model": "text-embedding-ada-002"}, f)
+                json.dump({"type": "openai", "provider": "standard", "model": OPENAI_EMBEDDING_MODEL}, f)
             st.success(f"벡터DB 생성 완료! 총 {len(splits)}개 문서 조각이 임베딩되었습니다.")
         except Exception as e:
             st.error(f"벡터DB 생성 실패: {str(e)}")
@@ -944,7 +951,7 @@ try:
             embeddings = OpenAIEmbeddings(
                 openai_api_key=openai.api_key,
                 openai_api_base=openai.api_base,
-                model=os.environ.get("OPENAI_EMBEDDING_MODEL", "azure.text-embedding-3-large")
+                model=OPENAI_EMBEDDING_MODEL
             )
             db = Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
         except Exception as e:
