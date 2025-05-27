@@ -1,7 +1,6 @@
 # 데이터 및 바이너리 파일 무시
 backdata/
 data/*.xlsx
-data/*.hwp
 KAIST/Payment_dataset.csv
 *.sqlite3
 *.bin
@@ -15,4 +14,10 @@ KAIST/Payment_dataset.csv
 __pycache__/
 *.pyc
 .DS_Store
-.env 
+.env
+read_columns.py
+VerifyApp.py
+hwpSummary.py
+KAIST/
+chroma_db/
+

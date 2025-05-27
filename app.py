@@ -1,18 +1,20 @@
 import os
 import streamlit as st
+import sys
+import platform
 
 # ✅ 무조건 첫 Streamlit 명령어
 st.set_page_config(
-    page_title="🤖 KAIST 규정 챗봇",
+    page_title="KAIST 규정 챗봇",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # SQLite 버전 문제 해결 (Streamlit Cloud용)
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+if "streamlit" in sys.modules and platform.system() == "Linux":
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import time
 import shutil
@@ -57,11 +59,21 @@ CHROMA_DIR = os.path.join(os.path.dirname(__file__), 'chroma_db')
 os.makedirs(HWP_DIR, exist_ok=True)
 os.makedirs(CHROMA_DIR, exist_ok=True)
 
-# API 키 설정 - 환경변수와 Streamlit secrets 모두 지원
-openai.api_key = os.environ.get("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY", "")
-openai.api_base = os.environ.get("OPENAI_API_BASE") or st.secrets.get("OPENAI_API_BASE", "https://api.openai.com/v1")
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL") or st.secrets.get("OPENAI_MODEL", "gpt-4.1-mini")
-OPENAI_EMBEDDING_MODEL = os.environ.get("OPENAI_EMBEDDING_MODEL") or st.secrets.get("OPENAI_EMBEDDING_MODEL", "text-embedding-ada-002")
+# 환경 구분 함수
+def is_streamlit_cloud():
+    # Streamlit Cloud(리눅스) 환경에서는 secrets.toml이 존재
+    return platform.system() == "Linux" and hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets
+
+if is_streamlit_cloud():
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    openai.api_base = st.secrets.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+    OPENAI_MODEL = st.secrets.get("OPENAI_MODEL", "gpt-4.1-mini")
+    OPENAI_EMBEDDING_MODEL = st.secrets.get("OPENAI_EMBEDDING_MODEL", "text-embedding-ada-002")
+else:
+    openai.api_key = os.environ.get("OPENAI_API_KEY", "")
+    openai.api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+    OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "openai.gpt-4.1-mini-2025-04-14")
+    OPENAI_EMBEDDING_MODEL = os.environ.get("OPENAI_EMBEDDING_MODEL", "azure.text-embedding-3-large")
 
 # API 키 확인
 if not openai.api_key:
