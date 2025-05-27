@@ -2,12 +2,8 @@
 backdata/
 data/*.xlsx
 KAIST/Payment_dataset.csv
-*.sqlite3
-*.bin
-*.pickle
 *.csv
 *.xls
-*.db
 *.log
 # Jupyter 및 기타 임시 파일
 *.ipynb_checkpoints/
@@ -19,5 +15,15 @@ read_columns.py
 VerifyApp.py
 hwpSummary.py
 KAIST/
-chroma_db/
+
+# Chroma DB 파일들을 포함하기 위해 특정 패턴만 제외
+# 일반적인 바이너리 파일은 제외하되, chroma_db 내의 파일은 포함
+*.bin
+*.pickle
+# chroma_db 디렉토리의 파일들은 포함 (강제 추가)
+!chroma_db/**
+!chroma_db/*.sqlite3
+!chroma_db/*.json
+!chroma_db/**/*.bin
+!chroma_db/**/*.pickle
 

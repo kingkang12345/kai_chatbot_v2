@@ -64,6 +64,15 @@ def is_streamlit_cloud():
     # Streamlit Cloud(리눅스) 환경에서는 secrets.toml이 존재
     return platform.system() == "Linux" and hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets
 
+def should_rebuild_vectordb():
+    """벡터DB 재생성이 필요한지 확인하는 함수"""
+    # Streamlit Cloud 환경에서는 기존 DB 사용 (읽기 전용 환경)
+    if is_streamlit_cloud():
+        return False
+    
+    # 로컬 환경에서는 기존 로직 사용
+    return not os.path.exists(CHROMA_DIR) or not os.listdir(CHROMA_DIR)
+
 if is_streamlit_cloud():
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     openai.api_base = st.secrets.get("OPENAI_API_BASE", "https://api.openai.com/v1")
@@ -894,7 +903,7 @@ if chat_input:
 # 벡터DB 생성/로드 부분은 여기서 처리
 try:
     # 벡터DB가 없으면 생성, 있으면 로드
-    need_rebuild = force_rebuild or not os.path.exists(CHROMA_DIR) or not os.listdir(CHROMA_DIR)
+    need_rebuild = force_rebuild or should_rebuild_vectordb()
     
     if need_rebuild:
         docs = []
