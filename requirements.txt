@@ -7,4 +7,5 @@ chromadb
 langchain-teddynote
 python-dotenv
 httpx
-tenacity 
+tenacity
+pysqlite3-binary 
